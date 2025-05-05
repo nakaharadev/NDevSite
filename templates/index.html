@@ -11,15 +11,41 @@
         <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
         <script src="https://webglfundamentals.org/webgl/lessons/resources/3d-math.js"></script>
 
-        <script src="!{js:index}"></script>
-        <script src="!{js:effects}"></script>
+        <script type="module" src="!{js:page_changer}"></script>
+        <script type="module" src="!{js:gl}"></script>
+        <script type="module" src="!{js:effects}"></script>
+        <script type="module" src="!{js:index}"></script>
+        <script type="module" src="!{js:glConstants}"></script>
     </head>
     <body>
         <div class="data-container">
-            <canvas id="canvas" width="1920" height="1080"></canvas>
+            <canvas id="canvas"></canvas>
             <div id="greeting-container" class="data-container--inner">
                 <h1 id="greeting-main-text" class="oxanium-700">NDev</h1>
                 <p id="greeting-subtext" class="caveat-400">Power of dreams</p>
+            </div>
+        </div>
+        <div class="data-container">
+            <div id="about-container" class="data-container--inner">
+                <div id="about-left-size">
+                    <p id="about-data" class="lexend-400">
+                        Hello everyone. My name is NDev and I write whatever comes to mind. The list of my applications starts with a social network for role players, and ends with the Mirage language for dynamically creating Java objects. Are you interested? Well, then, welcome, I'll try to please you.
+                    </p>
+                    <div id="my-principles">
+                        <p id="my-principles-title" class="lexend-400">My principles</p>
+                        <div id="my-principles-list">
+                            <p class="my-principles-field lexend-400">- Difficult</p>
+                            <p class="my-principles-field lexend-400">- Quality</p>
+                            <p class="my-principles-field lexend-400">- Design</p>
+                            <p class="my-principles-field lexend-400">- Details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="data-container">
+            <div id="apps-container" class="data-container--inner">
+                <h1>Apps</h1>
             </div>
         </div>
         

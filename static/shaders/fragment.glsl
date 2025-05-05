@@ -1,7 +1,12 @@
 precision highp float;
+
 uniform sampler2D uSampler;
 uniform sampler2D uDistortedMask;
 uniform sampler2D uParticles;
+uniform vec2 uZoomCenter;    // Точка приближения [0..1]
+uniform float uZoomLevel;    // Уровень зума (1.0 = нет зума)
+uniform float uZoomProgress; // Прогресс анимации [0..1]
+
 uniform float uTime;
 varying vec2 vTex;
 
@@ -38,18 +43,33 @@ float animatedNoise(vec2 uv) {
 }
 
 void main() {
-    float distortedMask = texture2D(uDistortedMask, vTex).r;
+    vec2 texCoord = vTex;
+    float zoomAlpha = 1.0;
+    if (uZoomProgress > 0.0) {
+        // Смещаем координаты относительно центра зума
+        texCoord = (texCoord - uZoomCenter) * mix(1.0, uZoomLevel, uZoomProgress) + uZoomCenter;
+        
+        // Обрезаем текстуру за пределами [0..1]
+        if (texCoord.x < 0.0 || texCoord.x > 1.0 || 
+            texCoord.y < 0.0 || texCoord.y > 1.0) {
+            discard;
+        }
+
+        zoomAlpha = 1.0 - uZoomProgress;
+    }
+
+    float distortedMask = texture2D(uDistortedMask, texCoord).r;
     
     float speed = 2.0;
     float frequency = 20.0;
     float amplitude = 0.02;
     
     vec2 randomOffset = vec2(
-        animatedNoise(vTex * 2.0),
-        animatedNoise(vTex * 2.0 + 0.5)
+        animatedNoise(texCoord * 2.0),
+        animatedNoise(texCoord * 2.0 + 0.5)
     ) * 0.01 * distortedMask;
 
-    vec2 uv = vTex + randomOffset;
+    vec2 uv = texCoord + randomOffset;
     
     // Дополнительные динамические искажения
     uv += vec2(
@@ -62,9 +82,9 @@ void main() {
     vec4 color = texture2D(uSampler, uv);
     color.rgb -= 0.2 * (1.0 - distortedMask);
 
-    vec4 particles = texture2D(uParticles, vTex);
+    vec4 particles = texture2D(uParticles, texCoord);
     
     vec3 result = min(color.rgb + particles.rgb * particles.a, 1.0);
     
-    gl_FragColor = vec4(result, 1.0);
+    gl_FragColor = vec4(result, zoomAlpha);
 }
