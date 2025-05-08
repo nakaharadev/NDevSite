@@ -85,6 +85,8 @@ void main() {
     vec4 particles = texture2D(uParticles, texCoord);
     
     vec3 result = min(color.rgb + particles.rgb * particles.a, 1.0);
+
+    result += vec3(.08, .0, .08) * (1.0 - distortedMask) * 0.5;
     
     gl_FragColor = vec4(result, zoomAlpha);
 }
