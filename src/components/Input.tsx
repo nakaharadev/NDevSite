@@ -1,89 +1,89 @@
-import React, { useState, useEffect, useRef, CSSProperties } from 'react';
+import React, { 
+  useState, 
+  useEffect, 
+  useRef, 
+  CSSProperties, 
+  forwardRef,
+  useImperativeHandle
+} from 'react';
 
 interface InputProps {
   hint: string;
+  style?: CSSProperties;
 }
 
-export const Input: React.FC<InputProps> = ({ hint }) => {
+export type InputRef = {
+  focus: () => void;
+  getValue: () => string;
+  getNativeElement: () => HTMLInputElement | null;
+}
+
+export const Input = forwardRef<InputRef, InputProps>(({ hint, style = {} }, forwardedRef) => {
     const [focus, setFocus] = useState(false);
     const [hover, setHover] = useState(false);
     const [hasText, setHasText] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Предоставляем методы наружу через useImperativeHandle
+    useImperativeHandle(forwardedRef, () => ({
+      focus: () => inputRef.current?.focus(),
+      getValue: () => inputRef.current?.value || '',
+      getNativeElement: () => inputRef.current
+    }));
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setHasText(!!e.target.value);
-    }
-
-    useEffect(() => {
-            if (!ref.current) return;
-        
-            const current = ref.current;
-            const startHeight = 30;
-            const endHeight = 40;
-            const duration = 300;
-            let startTime: number | null = null;
-        
-            const animate = (timestamp: number) => {
-                if (!startTime) startTime = timestamp;
-                const elapsed = timestamp - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                const currentHeight = focus || hasText
-                    ? startHeight + (endHeight - startHeight) * progress
-                    : endHeight - (endHeight - startHeight) * progress;
-                
-                current.style.height = `${currentHeight}px`;
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                }
-            };
-        
-            requestAnimationFrame(animate);
-        }, [focus, hasText]);
+    };
 
     return (
-        <div>
+        <div style={{ margin: style?.margin }}>
             <input
-            ref={ref}
-            style={{
-                position: "relative",
-                top: "20px",
-                color: "#fff",
-                width: "100%",
-                height: focus ? "40px" : "30px",
-                background: focus ? "#313233" : "transparent",
-                padding: "10px",
-                fontSize: "15pt",
-                margin: "0",
-                borderRadius: "15px",
-                transition: "background .3s, height .3s",
-                border: "none",
-                outline: "none",
-                cursor: "pointer",
-            }}
-            onFocus={() => setFocus(true)}
-            onBlur={() => setFocus(false)}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            onChange={handleChange}/>
-            <p style={{
-                position: "relative",
-                top: focus || hasText ? "-40px" : "-30px",
-                left: "11px",
-                color: "#ccc",
-                fontSize: focus || hasText ? "10pt" : '15pt',
-                height: "0px",
-                margin: "0",
-                transition: "top .3s, font-size .3s"
-            }}
-            onBlur={() => setFocus(false)}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-            onClick={() => {
-                setFocus(true);
-                ref.current?.focus();
-            }}>{ hint }</p>
+                ref={inputRef}
+                style={{
+                    position: "relative",
+                    color: "#fff",
+                    width: "100%",
+                    height: focus || hasText ? "40px" : "30px",
+                    background: focus || hover ? focus ? "#313233" : "#212223" : "transparent",
+                    padding: "10px",
+                    fontSize: "15pt",
+                    margin: "0",
+                    borderRadius: "15px",
+                    transition: "background .3s, height .3s",
+                    border: "none",
+                    outline: "none",
+                    cursor: "pointer",
+                }}
+                onFocus={() => setFocus(true)}
+                onBlur={() => setFocus(false)}
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                onChange={handleChange}
+            />
+            <p 
+                style={{
+                    position: "relative",
+                    top: focus || hasText ? "-60px" : "-40px",
+                    left: "11px",
+                    color: "#ccc",
+                    fontSize: focus || hasText ? "10pt" : '15pt',
+                    height: "0px",
+                    width: "0",
+                    margin: "0",
+                    transition: "top .3s, font-size .3s",
+                    cursor: "pointer"
+                }}
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                onClick={() => {
+                    setFocus(true);
+                    inputRef.current?.focus();
+                }}
+            >
+                {hint}
+            </p>
         </div>
-    )
-};
+    );
+});
+
+Input.displayName = 'Input';

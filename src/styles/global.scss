@@ -27,6 +27,10 @@ code {
         monospace;
 }
 
+textarea::-webkit-scrollbar {
+    display: none;
+}
+
 .alumni-sans-pinstripe-regular {
     font-family: "Alumni Sans Pinstripe", sans-serif;
     font-weight: 400;

@@ -1,5 +1,7 @@
 import React, { JSX, useEffect, useRef, useState } from "react"
-import { Input } from "./Input";
+import { Input, InputRef } from "./Input";
+import { useNotificator } from "./context/NotificatorContext";
+import { MultilineInput, MultilineInputRef } from "./MultilineInput";
 
 interface PrincipleContainerProps {
     title: string,
@@ -37,8 +39,8 @@ const ToAppsBtn = (): JSX.Element => {
                 padding: 0
             }}>Apps</p>
             <svg style={{ transform: "translateY(5px)" }} width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <line x1="12" y1="20" x2="1" y2="4" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
-                <line x1="12" y1="20" x2="23" y2="4" stroke="#ccc" stroke-width="2" stroke-linecap="round"/>
+                <line x1="12" y1="20" x2="1" y2="4" stroke="#ccc" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="12" y1="20" x2="23" y2="4" stroke="#ccc" strokeWidth="2" strokeLinecap="round"/>
             </svg>
         </div>
     );
@@ -111,13 +113,15 @@ const PrincipleContainer: React.FC<PrincipleContainerProps> = ({ title, children
 
 const Email = (): JSX.Element => {
     const [hover, setHover] = useState(false);
+    const { setNotification } = useNotificator();
 
     return (
         <p style={{
             color: "#fff",
             fontSize: "15pt",
             margin: 0,
-        }}>
+        }}
+        onClick={() => setNotification({ text: "Copied", type: "success" })}>
             Email: <span style={{
                 color: "#ccc",
                 cursor: "pointer",
@@ -132,17 +136,40 @@ const Email = (): JSX.Element => {
 }
 
 const RequestInput = (): JSX.Element => {
+    const { setNotification } = useNotificator();
     const [hover, setHover] = useState(false);
     const [click, setClick] = useState(false);
+    const themeRef = useRef<InputRef>(null);
+    const emailRef = useRef<InputRef>(null);
+    const textRef = useRef<MultilineInputRef>(null);
+
+    const handleSend = () => {
+        const theme = themeRef.current?.getValue();
+        const email = emailRef.current?.getValue();
+        const text = textRef.current?.getValue();
+
+        if (theme?.length == 0 || email?.length == 0 || text?.length == 0) {
+            setNotification({ text: "Empty field", type: "error" });
+        } else {
+            setNotification({ text: "Sent", type: "success" });
+        }
+        
+        console.log({ theme, email, text }); // Проверка данных
+    }
 
     return (
         <>
             <div style={{
                 marginBottom: "10px"
             }}>
-                <Input hint="Theme"/>
-                <Input hint="Email"/>
-                <Input hint="Text"/>
+                <Input hint="Theme" ref={themeRef} style={{
+                    margin: "10px 0 0 0"
+                }}/>
+                <Input hint="Email"
+                style={{
+                    margin: "10px 0"
+                }} ref={emailRef}/>
+                <MultilineInput hint="Text" ref={textRef}/>
             </div>
             <div style={{
                 display: "flex",
@@ -166,7 +193,10 @@ const RequestInput = (): JSX.Element => {
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
                 onMouseDown={() => setClick(true)}
-                onMouseUp={() => setClick(false)}>Send</p>
+                onMouseUp={() => {
+                    setClick(false);
+                    handleSend();
+                }}>Send</p>
             </div>
         </>
     )
@@ -181,6 +211,7 @@ export const AboutPage = (): JSX.Element => {
             <PrincipleContainer color="#00bfff" title="Details">I care about the details, not the overall look. Smooth animations, well-chosen colors, support for older devices. These, as well as many other details, are very important, in my opinion, and they create an overall pleasant experience using the application.</PrincipleContainer>
         </>
     ]
+
     return (
         <div style={{
             width: "100vw",
@@ -246,7 +277,7 @@ export const AboutPage = (): JSX.Element => {
                             color: "#fff",
                             fontSize: "23pt",
                             margin: "10px 0 0 0"
-                        }}>Or fill</p>
+                        }}>Or send</p>
                         <RequestInput/>
                     </div>
                 </div>

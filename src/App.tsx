@@ -1,10 +1,11 @@
-import React from 'react';
 import { PageSwitcher } from './components/PageSwitcher';
 import { PageSwitcherProvider } from './components/context/PageSwitcherContext';
 import { HomePage } from './components/HomePage';
 import { NavBar } from './components/NavBar';
 import { AboutPage } from './components/AboutPage';
 import { AppsPage } from './components/AppsPage';
+import { NotificatorProvider } from './components/context/NotificatorContext';
+import { Notificator } from './components/Notificator';
 
 function App() {
     const pages = [
@@ -26,10 +27,13 @@ function App() {
     ]
     return (
         <PageSwitcherProvider pages={pages}>
-            <div>
-                <PageSwitcher/>
-                <NavBar/>
-            </div>
+            <NotificatorProvider>
+                <>
+                    <PageSwitcher/>
+                    <NavBar/>
+                    <Notificator />
+                </>
+            </NotificatorProvider>
         </PageSwitcherProvider>
     );
 }

@@ -27,4 +27,4 @@ export const usePageSwitcher = () => {
         throw new Error('usePageSwitcher must be used within a PageSwitcherProvider');
 
     return context;
-  };
+};
